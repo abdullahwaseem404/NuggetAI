@@ -2,6 +2,8 @@
 # Academic AI Chatbot
 ### For Tech Students – Concepts, Models, and Limitations
 
+Working Demo: https://www.youtube.com/watch?v=-CM5lSlJ6tc
+
 An academic-focused chatbot built with **Streamlit** and **Google Generative AI (Gemini)**.  
 This project is designed to help **tech students** learn concepts step-by-step, with clear explanations, factual answers, and safe guidance when uncertainty arises.
 
