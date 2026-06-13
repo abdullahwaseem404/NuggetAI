@@ -1,3 +1,8 @@
 streamlit
 python-dotenv
 google-generativeai
+flask
+langchain
+faiss-cpu
+tiktoken
+scikit-learn

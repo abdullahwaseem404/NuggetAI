@@ -1,70 +1,50 @@
+from flask import Flask, request, jsonify
 import os
-import streamlit as st
 from google import genai
 from dotenv import load_dotenv
-
+from backend.rag_pipeline import retrieve_context
 load_dotenv()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-if not GEMINI_API_KEY:
-    st.error("❌ GEMINI_API_KEY not found in .env file.")
-    st.stop()
+app = Flask(__name__)
 
-os.environ["GEMINI_API_KEY"] = GEMINI_API_KEY
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-st.set_page_config(
-    page_title="Academic AI Chatbot",
-    layout="centered",
-    page_icon="🤖"
+response = client.models.generate_content(
+    model="gemini-2.0-flash",
+    contents="Hello"
 )
 
-st.title("🤖 Academic AI Chatbot")
-st.caption("For Tech Students – concepts, models, and limitations")
-
+print(response.text)
 SYSTEM_PROMPT = """
-You are an academic-focused AI assistant for Tech students.
+You are an academic AI assistant.
 
-Rules:
-1) Give factual answers and do not invent data.
-2) If the question is unclear, ask one short clarifying question.
-3) Explain step-by-step when teaching.
-4) Use simple language and define technical terms.
-5) If you are not sure, say so and suggest a safe way to verify.
-6) Keep answers short unless asked for detail.
+- Explain step-by-step
+- Use simple language
+- Define technical terms
+- Stay factual
 """
 
-@st.cache_resource(show_spinner=False)
-def load_gemini():
-    return genai.Client(api_key=GEMINI_API_KEY)
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.json
+    query = data.get("query")
 
-gemini_client = load_gemini()
+    context = retrieve_context(query)
 
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
+    full_prompt = f"""
+    Context:
+    {context}
 
-with st.form("chat_form"):
-    user_query = st.text_input(
-        "Ask a question:"
-    )
-    ask_btn = st.form_submit_button("Ask")
+    Question:
+    {query}
 
-    if ask_btn:
-        if not user_query.strip():
-            st.warning("Please type a question.")
-        else:
-            full_prompt = SYSTEM_PROMPT + "\nUser: " + user_query
-            try:
-                response = gemini_client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=full_prompt
-                )
-                answer = (response.text or "").strip()
-            except Exception as e:
-                answer = f"Error: {e}"
+    Answer step-by-step:
+    """
 
-            st.session_state.chat_history.append((user_query, answer))
-
-for q, a in reversed(st.session_state.chat_history):
-    st.markdown(f"**You:** {q}")
-    st.markdown(f"**Bot:** {a}")
-    st.markdown("---")
+    try:
+        response = genai.GenerativeModel("gemini-1.5-flash").generate_content(
+            SYSTEM_PROMPT + full_prompt
+        )
+        return jsonify({"answer": response.text})
+    except Exception as e:
+        return jsonify({"error": str(e)})
