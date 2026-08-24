@@ -1,0 +1,13 @@
+Machine learning is a field of artificial intelligence in which computers learn patterns from data and use those patterns to make predictions or decisions.
+
+Supervised learning uses labelled examples, while unsupervised learning finds patterns in data without labels.
+
+An algorithm is a finite sequence of precise steps for solving a problem.
+
+A data structure is a way to organise data so that operations such as lookup, insertion, and deletion can be performed efficiently.
+
+Retrieval-augmented generation (RAG) retrieves relevant source text before asking a language model to answer.
+
+An embedding is a numerical vector that represents the meaning of text, an image, or another object. Items with similar meanings have vectors that are close together.
+
+In a RAG system, document embeddings are stored in a vector database and a question embedding is used to retrieve the most relevant documents.
